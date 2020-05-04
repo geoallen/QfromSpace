@@ -3,7 +3,6 @@
 library(sf)
 library(geosphere)
 library(tidyverse)
-library(sf)
 library(sp)
 library(ggplot2)
 library(rgeos)
@@ -20,19 +19,19 @@ if (!"RColorBrewer" %in% rownames(installed.packages())){
 if (!"zyp" %in% rownames(installed.packages())){
   install.packages("zyp")}; require(zyp)
 
-setwd("E:\\research\\MERIT_GRWL")
+setwd("~/research/2019_10_15_QfromSpace/git/QfromSpace")
 
 ###grwl cross sections w/ grades discharge data & order by ID.  
-data<- read.csv("NH15_3x__3spc__spatialJoin.csv") 
-data = data[order(data$ID),] 
+data_raw = read.dbf("./in/NH15_3x__3spc__spatialJoin.dbf")$dbf
+data = data_raw[order(data_raw$ID),] 
 
 ###Landsat estimated widths from GEE 2015-present. 
-data_val = read.csv("E:\\research\\GRWL\\GRWL_2015_present\\output_NH15_3x_3spc_full_imgcoll.csv")
+data_val = read.csv("./in/output_NH15_3x_3spc_full_imgcoll.csv")
 
-# 
+
 # usgs_w = read.csv("E:\\research\\GRWL\\GRWL_2015_present\\width_val\\input\\gaugeData\\USGS\\dailyW\\07374000.csv")
 # usgs_q = read.csv("E:\\research\\GRWL\\GRWL_2015_present\\width_val\\input\\gaugeData\\USGS\\dailyQ\\07374000.csv")
-gageinfo = read.csv("E:\\research\\GRWL\\GRWL_2015_present\\width_val\\input\\gaugeData\\USGS\\gaugeTable.csv")
+gageinfo = read.csv("./in/gaugeTable.csv")
 
 ##grwl x section length
 grwl_l = 3
@@ -44,6 +43,10 @@ gageinfo_lat = gageinfo[gageinfo$LAT >28.5451 & gageinfo$LAT <32.0911,]
 gageinfo_lon = gageinfo_lat[gageinfo_lat$LONG > -96.0782 & gageinfo_lat$LONG < -89.7776,]
 gageinfo = gageinfo_lon
 
+
+
+#### Wow! This is elaborate. Can use geosphere package to calculate 
+#### great cirlce distances using lat/lon. 
 
 
 ##Don't read these e&n conversions together-messes up the grwl 'data'##
@@ -69,7 +72,7 @@ for (i in 1:nrow(data)){
 }
 
 #How many xsections to consider
-nGRWL = as.numeric(5)
+nGRWL = 5
 
 #Calculate distance function
 distance = function(ge, gn, xe, xn){
